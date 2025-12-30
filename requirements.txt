@@ -3,7 +3,7 @@ Pillow
 requests
 streamlit-cropper
 numpy
-opencv-python
+opencv-python-headless
 google-api-python-client
 google-auth
 PyYAML
