@@ -1,0 +1,6 @@
+streamlit
+Pillow
+requests
+streamlit-cropper
+numpy
+opencv-python
