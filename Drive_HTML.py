@@ -124,6 +124,7 @@ with tab1:
     video_mode = st.sidebar.checkbox("Video Mode?", key="Video_modeLL")
     # Load selected file_id from sidebar (if any)
     mul_link = []
+    yaml_mul_link = []
     if image_list or video_list: 
         st.markdown("### ✅ Ảnh xem trước:")
         cols = st.columns(3)
@@ -140,6 +141,7 @@ with tab1:
                     st.markdown(html_code, unsafe_allow_html=True)
                     st.code(thumbnail_url)
                 mul_link.append(f"- {thumbnail_url}")
+                yaml_mul_link.append(f"      - {thumbnail_url}")
 
         for i, video in enumerate(video_list):
             file_id = video[1]
@@ -153,6 +155,7 @@ with tab1:
 
 
         st.sidebar.code("\n".join(mul_link))
+        st.sidebar.code("\n".join(yaml_mul_link))
     else:
         default_link = ""
         drive_link = st.sidebar.text_input("Nhập link ảnh từ Google Drive:", value=default_link)
