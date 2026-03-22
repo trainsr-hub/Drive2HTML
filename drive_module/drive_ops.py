@@ -56,7 +56,25 @@ def get_drive_tree_arc(folder_id):
 
     return traverse(folder_id)
 
+def flatten_drive_tree(tree):
+    """
+    Chuyển dict cây folder từ get_drive_tree_arc thành dict phẳng:
+    - key: "Folder Name ~ folder_id"
+    - value: list các image id trong folder đó
+    """
+    flat_dict = {}
 
+    def traverse(node):
+        key = f"{node['name']} ~ {node['id']}"
+        # Lấy id của tất cả image trong folder hiện tại
+        flat_dict[key] = [img_id for _, img_id in node.get("images", [])]
+
+        # Đệ quy xử lý các subfolder
+        for sub in node.get("subfolders", []):
+            traverse(sub)
+
+    traverse(tree)
+    return flat_dict
 
 
 
