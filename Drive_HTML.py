@@ -11,24 +11,6 @@ import drive_module.drive_ops as drive_ops
 import cv2
 import tempfile
 
-def get_video_size_from_drive(file_id: str):
-    url = f"https://drive.google.com/uc?export=download&id={file_id}"
-
-    # tải về file tạm
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-        r = requests.get(url, stream=True)
-        for chunk in r.iter_content(chunk_size=8192):
-            tmp.write(chunk)
-        tmp_path = tmp.name
-
-    # đọc metadata bằng cv2
-    cap = cv2.VideoCapture(tmp_path)
-    width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    cap.release()
-    return width, height, frame_count
-
 def get_image_size_from_drive(file_id: str):
     url = f"https://drive.google.com/uc?export=download&id={file_id}"
     r = requests.get(url)  # không dùng stream=True
@@ -36,12 +18,6 @@ def get_image_size_from_drive(file_id: str):
     img = Image.open(BytesIO(r.content))
     return img.width, img.height, 1
 
-
-def get_file_size(file_id: str, is_video: bool):
-    if is_video:
-        return get_video_size_from_drive(file_id)
-    else:
-        return get_image_size_from_drive(file_id)
 
 if "file_name_om" not in st.session_state:
     st.session_state.file_name_om = ""
@@ -126,8 +102,17 @@ with tab1:
                 yaml_mul_link = []
 
                 for i, file_id in enumerate(image_list):
-                    # Tạo URL ảnh
-                    thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=800"
+                    # Lấy kích thước thật của ảnh
+                    try:
+                        img_width, img_height, _ = get_image_size_from_drive(file_id)
+                    except Exception as e:
+                        st.error(f"Lỗi tải ảnh {file_id}: {e}")
+                        continue
+
+                    # Scale thumbnail theo tỉ lệ thật (max 800px)
+                    scale = min(max(img_width, img_height), 800)
+                    thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz={scale}"
+
                     html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
                     markdown_code = f'![Preview]({thumbnail_url})'
 
