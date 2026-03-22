@@ -119,9 +119,10 @@ with tab1:
                     markdown_code = f'![Preview]({thumbnail_url})'
 
                     # Show ảnh theo column
-                    with cols[i % 3]:
-                        st.markdown(html_code, unsafe_allow_html=True)
-                        st.code(thumbnail_url)
+                    with st.expander("Pictures", expanded=True):
+                        with cols[i % 3]:
+                            st.markdown(html_code, unsafe_allow_html=True)
+                            st.code(thumbnail_url)
 
                     # Lưu link cho folder
                     mul_link.append(f"- {thumbnail_url}")
