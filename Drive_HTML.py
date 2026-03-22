@@ -83,8 +83,9 @@ def extract_file_id(link):
 
 with st.sidebar:
     folder_id = drive_ops.select_working_folder()
-    tree = drive_ops.get_drive_tree_arc(folder_id)
-    flat_images = drive_ops.flatten_drive_tree(tree)
+    if folder_id:
+        tree = drive_ops.get_drive_tree_arc(folder_id)
+        flat_images = drive_ops.flatten_drive_tree(tree)
 
 # Tabs
 tab1, tab2 = st.tabs(["Drive Link", "Crop Image"])
