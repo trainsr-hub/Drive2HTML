@@ -82,6 +82,7 @@ def extract_file_id(link):
     return None
 
 with st.sidebar:
+    flat_images = {}
     folder_id = drive_ops.select_working_folder()
     if folder_id:
         tree = drive_ops.get_drive_tree_arc(folder_id)
