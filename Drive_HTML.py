@@ -141,7 +141,6 @@ with tab1:
             img_width, img_height, _ = get_image_size_from_drive(file_id)
         except Exception as e:
             st.error(f"Lỗi tải ảnh {file_id}: {e}")
-            continue
 
         # Scale thumbnail theo tỉ lệ thật (max 800px)
         scale = max(img_width, img_height, 800)
