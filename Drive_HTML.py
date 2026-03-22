@@ -156,6 +156,11 @@ with tab1:
 
         st.sidebar.code("\n".join(mul_link))
         st.sidebar.code("\n".join(yaml_mul_link))
+        tree = drive_ops.get_drive_tree_arc(folder_id)
+        flat_images = drive_ops.flatten_drive_tree(tree)
+        st.write(tree)
+        st.write(flat_images)
+        # flat_images giờ là dict phẳng như bạn muốn
     else:
         default_link = ""
         drive_link = st.sidebar.text_input("Nhập link ảnh từ Google Drive:", value=default_link)
