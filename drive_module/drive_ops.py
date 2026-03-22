@@ -8,6 +8,58 @@ from googleapiclient.http import MediaIoBaseUpload
 import io
 import yaml
 
+
+def get_drive_tree_arc(folder_id):
+    """
+    ARC_01:
+    Trả về cây folder dạng:
+
+    {
+        "name": "Main Folder",
+        "id": folder_id,
+        "images": [(name, id)],
+        "videos": [(name, id)],
+        "subfolders": [same structure...]
+    }
+    """
+
+    def traverse(fid, name="Main Folder"):
+        items = list_folder_contents(fid)
+
+        node = {
+            "name": name,
+            "id": fid,
+            "images": [],
+            "videos": [],
+            "subfolders": []
+        }
+
+        for item in items:
+            mime = item.get("mimeType", "")
+            item_name = item.get("name")
+            item_id = item.get("id")
+
+            # --- IMAGE ---
+            if mime.startswith("image/"):
+                node["images"].append((item_name, item_id))
+
+            # --- VIDEO ---
+            elif mime.startswith("video/"):
+                node["videos"].append((item_name, item_id))
+
+            # --- FOLDER ---
+            elif mime == "application/vnd.google-apps.folder":
+                sub_node = traverse(item_id, item_name)
+                node["subfolders"].append(sub_node)
+
+        return node
+
+    return traverse(folder_id)
+
+
+
+
+
 def get_file_metadata(file_id):
     return drive_service.files().get(
         fileId=file_id,
