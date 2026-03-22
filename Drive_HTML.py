@@ -114,32 +114,37 @@ with st.sidebar:
 tab1, tab2 = st.tabs(["Drive Link", "Crop Image"])
 with tab1:
     st.title("Google Drive Image Link Formatter")
-    # Tạm thời bỏ video_mode
-    mul_link = []
-    yaml_mul_link = []
 
     if flat_images: 
-        st.markdown("### ✅ Ảnh xem trước:")
-        # Duyệt qua từng folder (key) và các image_id (value list)
+        st.markdown("### ✅ Ảnh xem trước theo folder:")
+        
+        # Duyệt từng folder
         for folder_name, image_list in flat_images.items():
-            st.markdown(f"#### {folder_name}")
-            cols = st.columns(3)
-            
-            for i, file_id in enumerate(image_list):
-                # Tạo URL ảnh
-                thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=800"
-                html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
-                markdown_code = f'![Preview]({thumbnail_url})'
+            with st.expander(f"{folder_name} ({len(image_list)} ảnh)", expanded=True):
+                cols = st.columns(3)
+                mul_link = []
+                yaml_mul_link = []
 
-                with cols[i % 3]:
-                    st.markdown(html_code, unsafe_allow_html=True)
-                    st.code(thumbnail_url)
-                
-                mul_link.append(f"- {thumbnail_url}")
-                yaml_mul_link.append(f"      - {thumbnail_url}")
+                for i, file_id in enumerate(image_list):
+                    # Tạo URL ảnh
+                    thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=800"
+                    html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
+                    markdown_code = f'![Preview]({thumbnail_url})'
 
-        st.sidebar.code("\n".join(mul_link))
-        st.sidebar.code("\n".join(yaml_mul_link))
+                    # Show ảnh theo column
+                    with cols[i % 3]:
+                        st.markdown(html_code, unsafe_allow_html=True)
+                        st.code(thumbnail_url)
+
+                    # Lưu link cho folder
+                    mul_link.append(f"- {thumbnail_url}")
+                    yaml_mul_link.append(f"      - {thumbnail_url}")
+
+                # In link cuối expander
+                st.markdown("### 📋 Links Markdown:")
+                st.code("\n".join(mul_link), language="markdown")
+                st.markdown("### 📋 YAML Links:")
+                st.code("\n".join(yaml_mul_link), language="yaml")
 
     else:
         st.warning("Chưa có ảnh trong folder đã chọn hoặc nhập link thủ công.")
