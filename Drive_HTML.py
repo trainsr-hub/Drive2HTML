@@ -137,6 +137,7 @@ with tab1:
                 st.code("\n".join(yaml_mul_link), language="yaml")
 
     elif extract_file_id(file_link):
+        file_id = extract_file_id(file_link)
         try:
             img_width, img_height, _ = get_image_size_from_drive(file_id)
         except Exception as e:
