@@ -136,6 +136,19 @@ with tab1:
                 st.markdown("### 📋 YAML Links:")
                 st.code("\n".join(yaml_mul_link), language="yaml")
 
+    elif extract_file_id(file_link):
+        try:
+            img_width, img_height, _ = get_image_size_from_drive(file_id)
+        except Exception as e:
+            st.error(f"Lỗi tải ảnh {file_id}: {e}")
+            continue
+
+        # Scale thumbnail theo tỉ lệ thật (max 800px)
+        scale = max(img_width, img_height, 800)
+        thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz={scale}"
+        html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
+        st.markdown(html_code, unsafe_allow_html=True)
+        st.code(thumbnail_url)
     else:
         st.warning("Chưa có ảnh trong folder đã chọn hoặc nhập link thủ công.")
 
