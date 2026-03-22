@@ -95,40 +95,40 @@ with tab1:
 
     if flat_images: 
         st.markdown("### ✅ Ảnh xem trước theo folder:")
-        
+
         # Duyệt từng folder
         for folder_name, image_list in flat_images.items():
             with st.expander(f"{folder_name} ({len(image_list)} ảnh)", expanded=True):
-                cols = st.columns(3)
-                mul_link = []
-                yaml_mul_link = []
+                # Tách phần ảnh vào expander con
+                with st.expander("Pictures", expanded=True):
+                    cols = st.columns(3)
+                    mul_link = []
+                    yaml_mul_link = []
 
-                for i, file_id in enumerate(image_list):
-                    # Lấy kích thước thật của ảnh
-                    try:
-                        img_width, img_height, _ = get_image_size_from_drive(file_id)
-                    except Exception as e:
-                        st.error(f"Lỗi tải ảnh {file_id}: {e}")
-                        continue
+                    for i, file_id in enumerate(image_list):
+                        # Lấy kích thước thật của ảnh
+                        try:
+                            img_width, img_height, _ = get_image_size_from_drive(file_id)
+                        except Exception as e:
+                            st.error(f"Lỗi tải ảnh {file_id}: {e}")
+                            continue
 
-                    # Scale thumbnail theo tỉ lệ thật (max 800px)
-                    scale = max(img_width, img_height, 800)
-                    thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz={scale}"
+                        # Scale thumbnail theo tỉ lệ thật (max 800px)
+                        scale = max(img_width, img_height, 800)
+                        thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz={scale}"
 
-                    html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
-                    markdown_code = f'![Preview]({thumbnail_url})'
+                        html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
 
-                    # Show ảnh theo column
-                    with st.expander("Pictures", expanded=True):
+                        # Show ảnh theo column
                         with cols[i % 3]:
                             st.markdown(html_code, unsafe_allow_html=True)
                             st.code(thumbnail_url)
 
-                    # Lưu link cho folder
-                    mul_link.append(f"- {thumbnail_url}")
-                    yaml_mul_link.append(f"      - {thumbnail_url}")
+                        # Lưu link cho folder
+                        mul_link.append(f"- {thumbnail_url}")
+                        yaml_mul_link.append(f"      - {thumbnail_url}")
 
-                # In link cuối expander
+                # In link cuối expander folder
                 st.markdown("### 📋 Links Markdown:")
                 st.code("\n".join(mul_link), language="markdown")
                 st.markdown("### 📋 YAML Links:")
