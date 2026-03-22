@@ -107,100 +107,42 @@ def extract_file_id(link):
 
 with st.sidebar:
     folder_id = drive_ops.select_working_folder()
+    tree = drive_ops.get_drive_tree_arc(folder_id)
+    flat_images = drive_ops.flatten_drive_tree(tree)
 
-    selected_image_id = None
-    image_list = []
-    video_list = []
-    if folder_id:
-        image_list_unsort, video_list_unsort = drive_ops.get_images_in_folder(folder_id)  # List of tuples: (name, file_id)
-        image_list_none= sorted(image_list_unsort, key=lambda x: x[0])
-        image_list = st.multiselect("Các ảnh:", options=image_list_none, default= image_list_none, key= "linksheeh")
-        video_list_none = sorted(video_list_unsort, key=lambda x: x[0])
-        video_list = st.multiselect("Các video:", options=video_list_none, default= video_list_none, key= "linkshevideo") 
 # Tabs
 tab1, tab2 = st.tabs(["Drive Link", "Crop Image"])
 with tab1:
     st.title("Google Drive Image Link Formatter")
-    video_mode = st.sidebar.checkbox("Video Mode?", key="Video_modeLL")
-    # Load selected file_id from sidebar (if any)
+    # Tạm thời bỏ video_mode
     mul_link = []
     yaml_mul_link = []
-    if image_list or video_list: 
-        st.markdown("### ✅ Ảnh xem trước:")
-        cols = st.columns(3)
 
-        for i, image in enumerate(image_list):
-            file_id = image[1]
-            original_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-            img_width_, img_height_, Blue = get_file_size(file_id, video_mode)
-            thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=s{max(img_width_, img_height_)}"
-            html_code = f"<img src='{thumbnail_url}' alt='{image[0]}' style='width:100%; border-radius:6px;'>"
-            markdown_code = f'![Preview]({thumbnail_url})'
-            if Blue == 1 or Blue < 0:
+    if flat_images: 
+        st.markdown("### ✅ Ảnh xem trước:")
+        # Duyệt qua từng folder (key) và các image_id (value list)
+        for folder_name, image_list in flat_images.items():
+            st.markdown(f"#### {folder_name}")
+            cols = st.columns(3)
+            
+            for i, file_id in enumerate(image_list):
+                # Tạo URL ảnh
+                thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=800"
+                html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
+                markdown_code = f'![Preview]({thumbnail_url})'
+
                 with cols[i % 3]:
                     st.markdown(html_code, unsafe_allow_html=True)
                     st.code(thumbnail_url)
+                
                 mul_link.append(f"- {thumbnail_url}")
                 yaml_mul_link.append(f"      - {thumbnail_url}")
 
-        for i, video in enumerate(video_list):
-            file_id = video[1]
-            video_link = f"<iframe src='https://drive.google.com/file/d/{file_id}/preview' width='1024' height='576' allow='autoplay' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>"
-            st.markdown('### 📋 Video:')
-            st.markdown(video_link, unsafe_allow_html=True)
-            st.code(video_link)
-            st.sidebar.markdown("Bìa Video:")
-            mul_link.append(f"{video_link}")
-
-
-
         st.sidebar.code("\n".join(mul_link))
         st.sidebar.code("\n".join(yaml_mul_link))
-        tree = drive_ops.get_drive_tree_arc(folder_id)
-        flat_images = drive_ops.flatten_drive_tree(tree)
-        st.write(tree)
-        st.write(flat_images)
-        # flat_images giờ là dict phẳng như bạn muốn
+
     else:
-        default_link = ""
-        drive_link = st.sidebar.text_input("Nhập link ảnh từ Google Drive:", value=default_link)
-
-        if drive_link:
-            file_id = extract_file_id(drive_link)
-            if file_id:
-                original_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-                img_width_, img_height_, Blue = get_file_size(file_id, video_mode)
-                thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=s{max(img_width_, img_height_)}"
-                html_code = f"<img src='{thumbnail_url}' alt='Preview'>"
-                markdown_code = f'![Preview]({thumbnail_url})'
-                if Blue == 1 or Blue < 0:
-                    st.markdown("### ✅ Ảnh xem trước:")
-                    st.markdown(html_code, unsafe_allow_html=True)
-
-                    st.markdown("### URL Ảnh:")
-                    st.code(thumbnail_url)
-                    st.markdown("### 📋 HTML:")
-                    st.code(html_code, language="html")
-                    st.markdown("### 📋 Markdown:")
-                    st.code(markdown_code, language="markdown")
-                else:
-                    video_link = f"""
-                        <style>
-                        .embed-container {{ position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; }}
-                        .embed-container iframe, .embed-container video {{ position: absolute; top:0; left:0; width:100%; height:100%; }}
-                        </style>
-
-                        <div class="embed-container">
-                        <iframe src="https://drive.google.com/file/d/{file_id}/preview" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                    """
-                    st.markdown('### 📋 Video:')
-                    st.markdown(video_link, unsafe_allow_html=True)
-                    st.code(video_link)
-                    st.sidebar.markdown("Bìa Video:")
-                st.sidebar.code(thumbnail_url)
-            else:
-                st.error("❌ Không thể trích xuất file_id từ link đã nhập.")
+        st.warning("Chưa có ảnh trong folder đã chọn hoặc nhập link thủ công.")
 
 
 
