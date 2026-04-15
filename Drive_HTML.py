@@ -145,7 +145,7 @@ with tab1:
 
         # Scale thumbnail theo tỉ lệ thật (max 800px)
         scale = max(img_width, img_height, 800)
-        thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz={scale}"
+        thumbnail_url = f"https://drive.google.com/thumbnail?id={file_id}&sz=s{scale}"
         html_code = f"<img src='{thumbnail_url}' alt='{file_id}' style='width:100%; border-radius:6px;'>"
         st.markdown(html_code, unsafe_allow_html=True)
         st.code(thumbnail_url)
