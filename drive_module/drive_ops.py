@@ -1,4 +1,5 @@
 #drive_ops.py
+#import drive_module.drive_ops as drive_ops
 
 import streamlit as st
 import re
@@ -9,6 +10,21 @@ import io
 import yaml
 
 
+
+def rename_file(file_id, new_name):
+    """
+    Cập nhật tên mới cho file dựa trên file_id.
+    """
+    try:
+        updated_file = drive_service.files().update(
+            fileId=file_id,
+            body={'name': new_name}
+        ).execute()
+        return updated_file.get('name')
+    except Exception as e:
+        st.error(f"Lỗi khi đổi tên file {file_id}: {e}")
+        return None
+        
 def get_drive_tree_arc(folder_id):
     """
     ARC_01:
