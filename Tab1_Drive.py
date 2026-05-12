@@ -10,13 +10,38 @@ def slugify_name(name):
     return re.sub(r'[^a-zA-Z0-9]', '_', name)
 
 def transform_to_custom_structure(node):
-    """Chuyển đổi sang cấu trúc custom với thumbnail f-string"""
+    """
+    Chuyển đổi sang cấu trúc custom với các logic mới:
+    - Sort alphabet cho children.
+    - Bỏ qua Folder nếu không có children.
+    """
+    # Trường hợp là Folder (có children)
     if node.get("children") is not None:
+        # Đệ quy xử lý các con trước
         formatted_children = []
         for child in node["children"]:
-            formatted_children.append(transform_to_custom_structure(child))
+            transformed = transform_to_custom_structure(child)
+            # Chỉ add nếu transformed không phải None (loại bỏ folder rỗng)
+            if transformed is not None:
+                formatted_children.append(transformed)
+        
+        # --- LOGIC: Bỏ qua Folder không có children ---
+        if not formatted_children:
+            return None
+            
+        # --- LOGIC: Sort alphabet ASC ---
+        # Vì folder trả về dict {key: list}, file trả về str, ta cần logic sort cẩn thận
+        def get_sort_key(item):
+            if isinstance(item, dict):
+                return list(item.keys())[0].lower()
+            return str(item).lower()
+
+        formatted_children.sort(key=get_sort_key)
+        
         folder_key = slugify_name(node["name"])
         return {folder_key: formatted_children}
+    
+    # Trường hợp là File
     else:
         file_id = node.get("id")
         return f"https://drive.google.com/thumbnail?id={file_id}&sz=s1648"
@@ -55,10 +80,23 @@ def run_tab1():
                 
                 base_tree = build_nested_tree(flat_items, folder_id)
                 
+                # --- Xử lý danh sách con của Root ---
+                root_children = []
+                for child in base_tree["children"]:
+                    transformed = transform_to_custom_structure(child)
+                    if transformed is not None:
+                        root_children.append(transformed)
+                
+                # Sort alphabet cho cấp cao nhất (Root)
+                def get_sort_key(item):
+                    if isinstance(item, dict):
+                        return list(item.keys())[0].lower()
+                    return str(item).lower()
+                
+                root_children.sort(key=get_sort_key)
+
                 custom_data = {
-                    "Eva_Display_Ecstasy": [
-                        transform_to_custom_structure(child) for child in base_tree["children"]
-                    ]
+                    "Eva_Display_Ecstasy": root_children
                 }
 
                 yaml_output = yaml.dump(custom_data, indent=2, allow_unicode=True, sort_keys=False)
